@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
@@ -20,10 +19,9 @@ import java.util.stream.Collectors;
 import static ru.yandex.practicum.filmorate.service.UserService.INVALID;
 import static ru.yandex.practicum.filmorate.service.UserService.INVALID_NULL;
 
-
+@Slf4j
 @Service
 public class FilmService {
-    private static final Logger log = LoggerFactory.getLogger(FilmService.class);
     private final FilmStorage filmStorage;
     private final UserService userService;
 
@@ -48,9 +46,7 @@ public class FilmService {
     }
 
     public Film getById(int id) {
-        if (id <= 0) {
-            throw new IncorrectParameterException("id");
-        }
+        validateId(id);
         Film film = filmStorage.getById(id);
         if (film != null) {
             return film;
@@ -60,41 +56,25 @@ public class FilmService {
     }
 
     public boolean contains(int id) {
-        if (id <= 0) {
-            throw new IncorrectParameterException("id");
-        }
+        validateId(id);
         return filmStorage.contains(id);
     }
 
     public Film addLike(int id, int userId) {
-        if (id <= 0 || userId <= 0) {
-            throw new IncorrectParameterException("id");
-        }
+        validateIds(id, userId);
         Film film = getById(id);
 
-        if (film == null) {
-            throw new FilmNotFoundException(id);
-        }
-        if (!userService.contains(userId)) {
-            throw new UserNotFoundException(userId);
-        }
+        areFilmAndUserEqualNull(id, userId);
 
         film.getLikes().add(userId);
         return film;
     }
 
     public Film removeLike(int id, int userId) {
-        if (id <= 0 || userId <= 0) {
-            throw new IncorrectParameterException("id");
-        }
+        validateIds(id, userId);
         Film film = getById(id);
 
-        if (film == null) {
-            throw new FilmNotFoundException(id);
-        }
-        if (!userService.contains(userId)) {
-            throw new UserNotFoundException(userId);
-        }
+        areFilmAndUserEqualNull(id, userId);
 
         film.getLikes().remove(userId);
         return film;
@@ -113,6 +93,27 @@ public class FilmService {
                 .sorted(Comparator.comparingInt(film -> -film.getLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    private void validateId(int id) {
+        if (id <= 0) {
+            throw new IncorrectParameterException("id");
+        }
+    }
+
+    private void validateIds(int id, int userId) {
+        if (id <= 0 || userId <= 0) {
+            throw new IncorrectParameterException("id");
+        }
+    }
+
+    private void areFilmAndUserEqualNull(int filmId, int userId) {
+        if (getById(filmId) == null) {
+            throw new FilmNotFoundException(filmId);
+        }
+        if (!userService.contains(userId)) {
+            throw new UserNotFoundException(userId);
+        }
     }
 
     private void validateFilm(Film film) {

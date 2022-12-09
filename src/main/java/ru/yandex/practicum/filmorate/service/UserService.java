@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
@@ -16,9 +15,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserService {
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     public static final String INVALID = "Валидация не пройдена.";
     public static final String INVALID_NULL = "Передано null-значение";
     private final UserStorage userStorage;
@@ -43,9 +42,7 @@ public class UserService {
     }
 
     public User getById(int id) {
-        if (id <= 0) {
-            throw new IncorrectParameterException("id");
-        }
+        validateId(id);
         User user = userStorage.getById(id);
         if (user != null) {
             return user;
@@ -55,25 +52,16 @@ public class UserService {
     }
 
     public boolean contains(int id) {
-        if (id <= 0) {
-            throw new IncorrectParameterException("id");
-        }
+        validateId(id);
         return userStorage.contains(id);
     }
 
     public User addFriend(int id, int friendId) {
-        if (id <= 0 || friendId <= 0) {
-            throw new IncorrectParameterException("id");
-        }
+        validateIds(id, friendId);
         User user = getById(id);
         User friendUser = getById(friendId);
 
-        if (user == null) {
-            throw new UserNotFoundException(id);
-        }
-        if (friendUser == null) {
-            throw new UserNotFoundException(friendId);
-        }
+        areUsersEqualNull(id, friendId);
 
         user.getFriends().add(friendId);
         friendUser.getFriends().add(id);
@@ -81,18 +69,11 @@ public class UserService {
     }
 
     public User removeFriend(int id, int friendId) {
-        if (id <= 0 || friendId <= 0) {
-            throw new IncorrectParameterException("id");
-        }
+        validateIds(id, friendId);
         User user = getById(id);
         User friendUser = getById(friendId);
 
-        if (user == null) {
-            throw new UserNotFoundException(id);
-        }
-        if (friendUser == null) {
-            throw new UserNotFoundException(friendId);
-        }
+        areUsersEqualNull(id, friendId);
 
         user.getFriends().remove(friendId);
         friendUser.getFriends().remove(id);
@@ -100,20 +81,37 @@ public class UserService {
     }
 
     public List<User> getUserFriends(int id) {
-        if (id <= 0) {
-            throw new IncorrectParameterException("id");
-        }
+        validateId(id);
         return getFriendsByUserId(userStorage.getById(id).getFriends());
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
-        if (id <= 0 || otherId <= 0) {
-            throw new IncorrectParameterException("id");
-        }
+        validateIds(id, otherId);
         Set<Integer> commonIds = new HashSet<>(userStorage.getById(id).getFriends());
         commonIds.retainAll(userStorage.getById(otherId).getFriends());
 
         return getFriendsByUserId(commonIds);
+    }
+
+    private void validateId(int id) {
+        if (id <= 0) {
+            throw new IncorrectParameterException("id");
+        }
+    }
+
+    private void validateIds(int id, int friendId) {
+        if (id <= 0 || friendId <= 0) {
+            throw new IncorrectParameterException("id");
+        }
+    }
+
+    private void areUsersEqualNull(int userId, int friendId) {
+        if (getById(userId) == null) {
+            throw new UserNotFoundException(userId);
+        }
+        if (getById(friendId) == null) {
+            throw new UserNotFoundException(friendId);
+        }
     }
 
     private List<User> getFriendsByUserId(Set<Integer> friendsIds) {
