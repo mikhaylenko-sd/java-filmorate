@@ -2,10 +2,12 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -13,12 +15,17 @@ import java.time.Month;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-class FilmControllerTest {
-    private final FilmController filmController = new FilmController();
+class FilmServiceTest {
+    private final FilmService filmService;
     private Film film1;
     private Film film2;
     private Film film3;
     private Film film4;
+
+    @Autowired
+    public FilmServiceTest(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @BeforeEach
     void createFilms() {
@@ -31,117 +38,114 @@ class FilmControllerTest {
     //корректная работа GET
     @Test
     void getAll() {
-        filmController.create(film1);
-        filmController.create(film2);
-        filmController.create(film3);
+        int oldSize = filmService.getAll().size();
+        filmService.create(film1);
+        filmService.create(film2);
+        filmService.create(film3);
 
-        assertEquals(3, filmController.getAll().size());
+        assertEquals(oldSize + 3, filmService.getAll().size());
 
-        assertTrue(filmController.getAll().contains(film1));
-        assertTrue(filmController.getAll().contains(film2));
-        assertTrue(filmController.getAll().contains(film3));
+        assertTrue(filmService.getAll().contains(film1));
+        assertTrue(filmService.getAll().contains(film2));
+        assertTrue(filmService.getAll().contains(film3));
     }
 
     //корректная работа POST
     @Test
     void create() {
-        filmController.create(film1);
-        filmController.create(film2);
-        filmController.create(film3);
+        filmService.create(film1);
+        filmService.create(film2);
+        filmService.create(film3);
 
-        assertEquals(3, filmController.getAll().size());
+        assertEquals(3, filmService.getAll().size());
     }
 
     //некорректная работа POST (условия для валидации)
     @Test
     void createInvalidFilms() {
         film1.setName("    ");
-        assertThrows(ValidationException.class, () -> filmController.create(film1));
+        assertThrows(ValidationException.class, () -> filmService.create(film1));
 
         film2.setDescription("Фильм про синих людей, часть 1. Фильм про синих людей, часть 1. Фильм про синих людей, часть 1. Фильм про синих людей, часть 1. " +
                 "Фильм про синих людей, часть 1. Фильм про синих людей, часть 1. Фильм про синих людей, часть 1. Фильм про синих людей, часть 1.");
-        assertThrows(ValidationException.class, () -> filmController.create(film2));
+        assertThrows(ValidationException.class, () -> filmService.create(film2));
 
         film3.setReleaseDate(LocalDate.of(1895, Month.DECEMBER, 27));
-        assertThrows(ValidationException.class, () -> filmController.create(film3));
+        assertThrows(ValidationException.class, () -> filmService.create(film3));
 
         film4.setDuration((long) -60);
-        assertThrows(ValidationException.class, () -> filmController.create(film4));
+        assertThrows(ValidationException.class, () -> filmService.create(film4));
     }
 
     //некорректная работа POST (null)
     @Test
     void createInvalidFilmsWithNullFields() {
         film1.setName(null);
-        assertThrows(ValidationException.class, () -> filmController.create(film1));
+        assertThrows(ValidationException.class, () -> filmService.create(film1));
 
         film2.setDescription(null);
-        assertThrows(ValidationException.class, () -> filmController.create(film2));
+        assertThrows(ValidationException.class, () -> filmService.create(film2));
 
         film3.setReleaseDate(null);
-        assertThrows(ValidationException.class, () -> filmController.create(film3));
+        assertThrows(ValidationException.class, () -> filmService.create(film3));
 
         film4.setDuration(null);
-        assertThrows(ValidationException.class, () -> filmController.create(film4));
+        assertThrows(ValidationException.class, () -> filmService.create(film4));
     }
 
     //корректная работа PUT
     @Test
     void update() {
-        filmController.create(film1);
-        filmController.create(film2);
-        filmController.create(film3);
-
-        assertEquals(3, filmController.getAll().size());
+        filmService.create(film1);
+        filmService.create(film2);
+        filmService.create(film3);
 
         film2.setName("Аватар 2222");
-        filmController.update(film2);
-        assertTrue(filmController.getAll().contains(film2));
-        assertEquals("Аватар 2222", filmController.getAll().get(1).getName());
+        filmService.update(film2);
+        assertTrue(filmService.getAll().contains(film2));
+        assertEquals("Аватар 2222", filmService.getById(film2.getId()).getName());
     }
 
     //некорректная работа PUT (условия для валидации)
     @Test
     void updateInvalidFilms() {
-        filmController.create(film1);
-        filmController.create(film2);
-        filmController.create(film3);
-        filmController.create(film4);
+        filmService.create(film1);
+        filmService.create(film2);
+        filmService.create(film3);
+        filmService.create(film4);
 
-        assertEquals(4, filmController.getAll().size());
         film1.setName("    ");
-        assertThrows(ValidationException.class, () -> filmController.update(film1));
+        assertThrows(ValidationException.class, () -> filmService.update(film1));
 
         film2.setDescription("Фильм про синих людей, часть 1. Фильм про синих людей, часть 1. Фильм про синих людей, часть 1. Фильм про синих людей, часть 1. " +
                 "Фильм про синих людей, часть 1. Фильм про синих людей, часть 1. Фильм про синих людей, часть 1. Фильм про синих людей, часть 1. ");
-        assertThrows(ValidationException.class, () -> filmController.update(film2));
+        assertThrows(ValidationException.class, () -> filmService.update(film2));
 
         film3.setReleaseDate(LocalDate.of(1895, Month.DECEMBER, 27));
-        assertThrows(ValidationException.class, () -> filmController.update(film3));
+        assertThrows(ValidationException.class, () -> filmService.update(film3));
 
         film4.setDuration((long) -100);
-        assertThrows(ValidationException.class, () -> filmController.update(film4));
+        assertThrows(ValidationException.class, () -> filmService.update(film4));
     }
 
     //некорректная работа PUT (null)
     @Test
     void updateInvalidFilmsWithNullFields() {
-        filmController.create(film1);
-        filmController.create(film2);
-        filmController.create(film3);
-        filmController.create(film4);
+        filmService.create(film1);
+        filmService.create(film2);
+        filmService.create(film3);
+        filmService.create(film4);
 
-        assertEquals(4, filmController.getAll().size());
         film1.setName(null);
-        assertThrows(ValidationException.class, () -> filmController.update(film1));
+        assertThrows(ValidationException.class, () -> filmService.update(film1));
 
         film2.setDescription(null);
-        assertThrows(ValidationException.class, () -> filmController.update(film2));
+        assertThrows(ValidationException.class, () -> filmService.update(film2));
 
         film3.setReleaseDate(null);
-        assertThrows(ValidationException.class, () -> filmController.update(film3));
+        assertThrows(ValidationException.class, () -> filmService.update(film3));
 
         film4.setDuration(null);
-        assertThrows(ValidationException.class, () -> filmController.update(film4));
+        assertThrows(ValidationException.class, () -> filmService.update(film4));
     }
 }
