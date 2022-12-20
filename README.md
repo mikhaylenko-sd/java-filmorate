@@ -1,5 +1,5 @@
 # java-filmorate
-
+Template repository for Filmorate project.
 ![Database scheme](Filmorate.png)
 Схема состоит из 5 таблиц:
 - film
