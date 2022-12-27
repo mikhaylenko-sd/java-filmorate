@@ -6,15 +6,10 @@ Template repository for Filmorate project.
 - films
 - users
 - genres
+- film_genre
 - ratings
 - likes
 - friendship
-- status
-
-* Таблица status будет включать в себя 3 записи:
-1. Первый запросил дружбу у второго
-2. Второй запросил дружбу у первого
-3. В друзьях
 
   Связи между таблицами обозначены линиями:
 - *-1 связь many to one
@@ -62,12 +57,12 @@ Template repository for Filmorate project.
    SELECT user_id2
    FROM friendship
    WHERE user_id1 = id
-     AND status = 3
+     AND status = true
    UNION
    SELECT user_id1
    FROM friendship
    WHERE user_id2 = id
-     AND status = 3;
+     AND status = true;
    ``` 
 
 4) метод getCommonFriends(int id, int otherId):
@@ -76,21 +71,21 @@ Template repository for Filmorate project.
    (SELECT user_id2
    FROM friendship
    WHERE user_id1 = id
-     AND status = 3
+     AND status = true
    UNION
    SELECT user_id1
    FROM friendship
    WHERE user_id2 = id
-     AND status = 3)
+     AND status = true)
    INTERSECT
    (SELECT user_id2
    FROM friendship
    WHERE user_id1 = otherId
-     AND status = 3
+     AND status = true
    UNION
    SELECT user_id1
    FROM friendship
    WHERE user_id2 = otherId
-     AND status = 3);
+     AND status = true);
    ```
    
