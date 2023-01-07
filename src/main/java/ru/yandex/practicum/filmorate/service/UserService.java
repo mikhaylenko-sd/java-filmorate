@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
@@ -23,7 +24,7 @@ public class UserService {
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -58,37 +59,23 @@ public class UserService {
 
     public User addFriend(int id, int friendId) {
         validateIds(id, friendId);
-        User user = getById(id);
-        User friendUser = getById(friendId);
-
-        areUsersEqualNull(id, friendId);
-
-        user.getFriends().add(friendId);
-        friendUser.getFriends().add(id);
-        return user;
+        return userStorage.addFriend(id, friendId);
     }
 
     public User removeFriend(int id, int friendId) {
         validateIds(id, friendId);
-        User user = getById(id);
-        User friendUser = getById(friendId);
-
-        areUsersEqualNull(id, friendId);
-
-        user.getFriends().remove(friendId);
-        friendUser.getFriends().remove(id);
-        return user;
+        return userStorage.removeFriend(id, friendId);
     }
 
     public List<User> getUserFriends(int id) {
         validateId(id);
-        return getFriendsByUserId(userStorage.getById(id).getFriends());
+        return getFriendsByUserId(userStorage.getUserFriendsIds(id));
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
         validateIds(id, otherId);
-        Set<Integer> commonIds = new HashSet<>(userStorage.getById(id).getFriends());
-        commonIds.retainAll(userStorage.getById(otherId).getFriends());
+        Set<Integer> commonIds = new HashSet<>(userStorage.getUserFriendsIds(id));
+        commonIds.retainAll(userStorage.getUserFriendsIds(otherId));
 
         return getFriendsByUserId(commonIds);
     }
@@ -105,14 +92,6 @@ public class UserService {
         }
     }
 
-    private void areUsersEqualNull(int userId, int friendId) {
-        if (getById(userId) == null) {
-            throw new UserNotFoundException(userId);
-        }
-        if (getById(friendId) == null) {
-            throw new UserNotFoundException(friendId);
-        }
-    }
 
     private List<User> getFriendsByUserId(Set<Integer> friendsIds) {
         return friendsIds

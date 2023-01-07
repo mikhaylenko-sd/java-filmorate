@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
@@ -22,11 +23,13 @@ import static ru.yandex.practicum.filmorate.service.UserService.INVALID_NULL;
 @Slf4j
 @Service
 public class FilmService {
+
     private final FilmStorage filmStorage;
+
     private final UserService userService;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserService userService) {
+    public FilmService(@Qualifier("FilmDbStorage") FilmStorage filmStorage, UserService userService) {
         this.filmStorage = filmStorage;
         this.userService = userService;
     }
@@ -66,7 +69,7 @@ public class FilmService {
 
         areFilmAndUserEqualNull(id, userId);
 
-        film.getLikes().add(userId);
+        filmStorage.addLike(id, userId);
         return film;
     }
 
@@ -76,7 +79,7 @@ public class FilmService {
 
         areFilmAndUserEqualNull(id, userId);
 
-        film.getLikes().remove(userId);
+        filmStorage.removeLike(id, userId);
         return film;
     }
 
@@ -88,7 +91,6 @@ public class FilmService {
         if (count > numOfFilms) {
             count = numOfFilms;
         }
-
         return filmStorage.getAll().stream()
                 .sorted(Comparator.comparingInt(film -> -film.getLikes().size()))
                 .limit(count)
