@@ -13,8 +13,8 @@ public class MPAService {
     private final MPADao mpaDao;
 
     @Autowired
-    public MPAService(MPADao mpaDao) {
-        this.mpaDao = mpaDao;
+    public MPAService(MPADao MPADao) {
+        this.mpaDao = MPADao;
     }
 
     public List<MPA> getAll() {

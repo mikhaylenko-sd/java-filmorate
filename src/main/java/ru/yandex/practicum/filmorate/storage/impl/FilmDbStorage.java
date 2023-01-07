@@ -30,7 +30,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAll() {
-        String sql = "SELECT f.*, m.name AS mpa_name FROM films f" +
+        String sql = "SELECT f.*, m.name AS mpa_name, m.description as mpa_desc FROM films f" +
                 " LEFT JOIN MPA m ON m.id = F.mpa_id;";
         List<Film> films = jdbcTemplate.query(sql, new FilmMapper());
 
@@ -80,7 +80,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film getById(int id) {
         if (contains(id)) {
-            String sql = "SELECT f.*, m.name AS mpa_name FROM films f" +
+            String sql = "SELECT f.*, m.name AS mpa_name, m.description as mpa_desc FROM films f" +
                     " LEFT JOIN MPA m ON m.id = f.mpa_id" +
                     " WHERE f.film_id=?;";
             Film film = jdbcTemplate.query(sql, new Object[]{id}, new FilmMapper()).stream()
