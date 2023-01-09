@@ -42,7 +42,7 @@ class FilmServiceTest {
 
     //корректная работа GET
     @Test
-    void getAll() {
+    void testGetAll() {
         int oldSize = filmService.getAll().size();
         film1 = filmService.create(film1);
         film2 = filmService.create(film2);
@@ -57,7 +57,7 @@ class FilmServiceTest {
 
     //корректная работа POST
     @Test
-    void create() {
+    void testCreate() {
         int size = filmService.getAll().size();
 
         filmService.create(film1);
@@ -69,7 +69,7 @@ class FilmServiceTest {
 
     //некорректная работа POST (условия для валидации)
     @Test
-    void createInvalidFilms() {
+    void testCreateInvalidFilms() {
         film1.setName("    ");
         assertThrows(ValidationException.class, () -> filmService.create(film1));
 
@@ -86,7 +86,7 @@ class FilmServiceTest {
 
     //некорректная работа POST (null)
     @Test
-    void createInvalidFilmsWithNullFields() {
+    void testCreateInvalidFilmsWithNullFields() {
         film1.setName(null);
         assertThrows(ValidationException.class, () -> filmService.create(film1));
 
@@ -102,7 +102,7 @@ class FilmServiceTest {
 
     //корректная работа PUT
     @Test
-    void update() {
+    void testUpdate() {
         filmService.create(film1);
         filmService.create(film2);
         filmService.create(film3);
@@ -115,7 +115,7 @@ class FilmServiceTest {
 
     //некорректная работа PUT (условия для валидации)
     @Test
-    void updateInvalidFilms() {
+    void testUpdateInvalidFilms() {
         filmService.create(film1);
         filmService.create(film2);
         filmService.create(film3);
@@ -137,7 +137,7 @@ class FilmServiceTest {
 
     //некорректная работа PUT (null)
     @Test
-    void updateInvalidFilmsWithNullFields() {
+    void testUpdateInvalidFilmsWithNullFields() {
         filmService.create(film1);
         filmService.create(film2);
         filmService.create(film3);

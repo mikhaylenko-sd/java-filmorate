@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.impl;
+package ru.yandex.practicum.filmorate.storage.impl.db;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -22,7 +22,7 @@ import java.util.Set;
 @Component("UserDbStorage")
 @Primary
 public class UserDbStorage implements UserStorage {
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -36,14 +36,10 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getById(int id) {
-        if (contains(id)) {
-            String sql = "SELECT *  FROM users u" +
-                    " WHERE u.user_id=?;";
-            return jdbcTemplate.query(sql, new Object[]{id}, new UserMapper()).stream()
-                    .findAny().orElse(null);
-        } else {
-            throw new UserNotFoundException(id);
-        }
+        String sql = "SELECT *  FROM users u" +
+                " WHERE u.user_id=?;";
+        return jdbcTemplate.query(sql, new Object[]{id}, new UserMapper()).stream()
+                .findAny().orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @Override

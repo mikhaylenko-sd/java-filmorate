@@ -41,13 +41,13 @@ class FilmDbStorageTest {
     }
 
     @Test
-    void getAll() {
+    void testGetAll() {
         List<Film> films = filmStorage.getAll();
         assertEquals(2, films.size());
     }
 
     @Test
-    void getById() {
+    void testGetById() {
         Film film = filmStorage.getById(film1.getId());
         assertEquals(film1.getId(), film.getId());
         assertEquals(film1.getName(), film.getName());
@@ -64,7 +64,7 @@ class FilmDbStorageTest {
     }
 
     @Test
-    void create() {
+    void testCreate() {
         assertEquals(2, filmStorage.getAll().size());
         Film film3 = new Film(0, "Аватар3", "Фильм про синих людей, часть 3", LocalDate.of(2022, Month.NOVEMBER, 1), (long) 180, new MPA(3, null, null));
         filmStorage.create(film3);
@@ -73,7 +73,7 @@ class FilmDbStorageTest {
     }
 
     @Test
-    void update() {
+    void testUpdate() {
         film1.setName("11Film11");
         film1.setReleaseDate(LocalDate.of(2000, Month.APRIL, 3));
         filmStorage.update(film1);
@@ -100,7 +100,7 @@ class FilmDbStorageTest {
     }
 
     @Test
-    void contains() {
+    void testContains() {
         assertTrue(filmStorage.contains(1));
         assertTrue(filmStorage.contains(2));
 
@@ -108,7 +108,7 @@ class FilmDbStorageTest {
     }
 
     @Test
-    void addLike() {
+    void testAddLike() {
         int id = film1.getId();
         int userId = user.getId();
         assertEquals(new HashSet<>(), filmStorage.getById(id).getLikes());
@@ -119,7 +119,7 @@ class FilmDbStorageTest {
     }
 
     @Test
-    void removeLike() {
+    void testRemoveLike() {
         int id = film1.getId();
         int userId = user.getId();
 

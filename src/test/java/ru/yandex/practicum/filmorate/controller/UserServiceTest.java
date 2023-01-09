@@ -44,7 +44,7 @@ class UserServiceTest {
 
     //корректная работа GET
     @Test
-    void getAll() {
+    void testGetAll() {
         int oldSize = userService.getAll().size();
         userService.create(user1);
         userService.create(user2);
@@ -59,7 +59,7 @@ class UserServiceTest {
 
     //корректная работа POST
     @Test
-    void create() {
+    void testCreate() {
         int oldSize = userService.getAll().size();
 
         userService.create(user1);
@@ -71,7 +71,7 @@ class UserServiceTest {
 
     //некорректная работа POST (условия для валидации)
     @Test
-    void createInvalidUsers() {
+    void testCreateInvalidUsers() {
         user1.setEmail("     ");
         assertThrows(ValidationException.class, () -> userService.create(user1));
         user2.setEmail("user111mail.ru");
@@ -92,7 +92,7 @@ class UserServiceTest {
 
     //некорректная работа POST (null)
     @Test
-    void createInvalidUsersWithNullFields() {
+    void testCreateInvalidUsersWithNullFields() {
         user1.setEmail(null);
         assertThrows(ValidationException.class, () -> userService.create(user1));
 
@@ -110,7 +110,7 @@ class UserServiceTest {
 
     //корректная работа PUT
     @Test
-    void update() {
+    void testUpdate() {
         userService.create(user1);
         userService.create(user2);
         userService.create(user3);
@@ -123,7 +123,7 @@ class UserServiceTest {
 
     //некорректная работа PUT (условия для валидации)
     @Test
-    void updateInvalidUsers() {
+    void testUpdateInvalidUsers() {
         userService.create(user1);
         userService.create(user2);
         userService.create(user3);
@@ -153,7 +153,7 @@ class UserServiceTest {
 
     //некорректная работа PUT (null)
     @Test
-    void updateInvalidUsersWithNullFields() {
+    void testUpdateInvalidUsersWithNullFields() {
         userService.create(user1);
         userService.create(user2);
         userService.create(user3);
