@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.impl;
+package ru.yandex.practicum.filmorate.storage.impl.memory;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@Component
+@Component("InMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
     private final GeneratorId generatorId = new GeneratorId();
@@ -62,5 +62,25 @@ public class InMemoryFilmStorage implements FilmStorage {
         } else {
             throw new IllegalArgumentException("Вы пытаетесь обновить несуществующий Film.");
         }
+    }
+
+    @Override
+    public void deleteAll() {
+        films.clear();
+    }
+
+    @Override
+    public void deleteById(int id) {
+        films.remove(id);
+    }
+
+    @Override
+    public void addLike(int id, int userId) {
+        films.get(id).getLikes().add(userId);
+    }
+
+    @Override
+    public void removeLike(int id, int userId) {
+        films.get(id).getLikes().remove(userId);
     }
 }

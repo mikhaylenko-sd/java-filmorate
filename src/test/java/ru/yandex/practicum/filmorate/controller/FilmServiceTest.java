@@ -3,10 +3,13 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
@@ -15,6 +18,8 @@ import java.time.Month;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@AutoConfigureTestDatabase
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class FilmServiceTest {
     private final FilmService filmService;
     private Film film1;
@@ -29,19 +34,19 @@ class FilmServiceTest {
 
     @BeforeEach
     void createFilms() {
-        film1 = new Film(0, "Аватар1", "Фильм про синих людей, часть 1", LocalDate.of(2009, Month.DECEMBER, 17), (long) 60);
-        film2 = new Film(0, "Аватар2", "Фильм про синих людей, часть 2", LocalDate.of(2021, Month.NOVEMBER, 16), (long) 120);
-        film3 = new Film(0, "Аватар3", "Фильм про синих людей, часть 3", LocalDate.of(2022, Month.NOVEMBER, 1), (long) 180);
-        film4 = new Film(0, "Аватар3", "Фильм про синих людей, часть 3", LocalDate.of(2022, Month.NOVEMBER, 1), (long) 240);
+        film1 = new Film(0, "Аватар1", "Фильм про синих людей, часть 1", LocalDate.of(2009, Month.DECEMBER, 17), (long) 60, new MPA(1, "G", "У фильма нет возрастных ограничений."));
+        film2 = new Film(0, "Аватар2", "Фильм про синих людей, часть 2", LocalDate.of(2021, Month.NOVEMBER, 16), (long) 120, new MPA(1, "G", "У фильма нет возрастных ограничений."));
+        film3 = new Film(0, "Аватар3", "Фильм про синих людей, часть 3", LocalDate.of(2022, Month.NOVEMBER, 1), (long) 180, new MPA(1, "G", "У фильма нет возрастных ограничений."));
+        film4 = new Film(0, "Аватар3", "Фильм про синих людей, часть 3", LocalDate.of(2022, Month.NOVEMBER, 1), (long) 240, new MPA(1, "G", "У фильма нет возрастных ограничений."));
     }
 
     //корректная работа GET
     @Test
-    void getAll() {
+    void testGetAll() {
         int oldSize = filmService.getAll().size();
-        filmService.create(film1);
-        filmService.create(film2);
-        filmService.create(film3);
+        film1 = filmService.create(film1);
+        film2 = filmService.create(film2);
+        film3 = filmService.create(film3);
 
         assertEquals(oldSize + 3, filmService.getAll().size());
 
@@ -52,17 +57,19 @@ class FilmServiceTest {
 
     //корректная работа POST
     @Test
-    void create() {
+    void testCreate() {
+        int size = filmService.getAll().size();
+
         filmService.create(film1);
         filmService.create(film2);
         filmService.create(film3);
 
-        assertEquals(3, filmService.getAll().size());
+        assertEquals(size + 3, filmService.getAll().size());
     }
 
     //некорректная работа POST (условия для валидации)
     @Test
-    void createInvalidFilms() {
+    void testCreateInvalidFilms() {
         film1.setName("    ");
         assertThrows(ValidationException.class, () -> filmService.create(film1));
 
@@ -79,7 +86,7 @@ class FilmServiceTest {
 
     //некорректная работа POST (null)
     @Test
-    void createInvalidFilmsWithNullFields() {
+    void testCreateInvalidFilmsWithNullFields() {
         film1.setName(null);
         assertThrows(ValidationException.class, () -> filmService.create(film1));
 
@@ -95,7 +102,7 @@ class FilmServiceTest {
 
     //корректная работа PUT
     @Test
-    void update() {
+    void testUpdate() {
         filmService.create(film1);
         filmService.create(film2);
         filmService.create(film3);
@@ -108,7 +115,7 @@ class FilmServiceTest {
 
     //некорректная работа PUT (условия для валидации)
     @Test
-    void updateInvalidFilms() {
+    void testUpdateInvalidFilms() {
         filmService.create(film1);
         filmService.create(film2);
         filmService.create(film3);
@@ -130,7 +137,7 @@ class FilmServiceTest {
 
     //некорректная работа PUT (null)
     @Test
-    void updateInvalidFilmsWithNullFields() {
+    void testUpdateInvalidFilmsWithNullFields() {
         filmService.create(film1);
         filmService.create(film2);
         filmService.create(film3);

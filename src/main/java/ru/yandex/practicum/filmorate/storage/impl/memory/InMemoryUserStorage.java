@@ -1,18 +1,16 @@
-package ru.yandex.practicum.filmorate.storage.impl;
+package ru.yandex.practicum.filmorate.storage.impl.memory;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.GeneratorId;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
-@Component
+@Component("InMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
     private final GeneratorId generatorId = new GeneratorId();
@@ -63,4 +61,43 @@ public class InMemoryUserStorage implements UserStorage {
             throw new IllegalArgumentException("Вы пытаетесь обновить несуществующего User'а.");
         }
     }
+
+    @Override
+    public Set<Integer> getUserFriendsIds(int id) {
+        return getById(id).getFriends();
+    }
+
+    @Override
+    public User addFriend(int id, int friendId) {
+        User user = getById(id);
+        User friendUser = getById(friendId);
+
+        areUsersEqualNull(id, friendId);
+
+        user.getFriends().add(friendId);
+        friendUser.getFriends().add(id);
+        return user;
+    }
+
+    @Override
+    public User removeFriend(int id, int friendId) {
+        User user = getById(id);
+        User friendUser = getById(friendId);
+
+        areUsersEqualNull(id, friendId);
+
+        user.getFriends().remove(friendId);
+        friendUser.getFriends().remove(id);
+        return user;
+    }
+
+    private void areUsersEqualNull(int userId, int friendId) {
+        if (getById(userId) == null) {
+            throw new UserNotFoundException(userId);
+        }
+        if (getById(friendId) == null) {
+            throw new UserNotFoundException(friendId);
+        }
+    }
+
 }
